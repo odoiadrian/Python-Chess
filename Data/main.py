@@ -28,6 +28,7 @@ def chess():
             if event.type == pygame.QUIT:
                 print("THE GAME HAS ENDED")
                 running = False
+                break
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # If the left mouse button is clicked
                 if event.button == 1:
@@ -38,6 +39,3 @@ def chess():
         
         # Draw the board
         draw(display)
-
-if __name__ == "__main__":
-    chess()
