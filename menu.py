@@ -58,7 +58,7 @@ def main_menu():
                     if text_rect.collidepoint(mouse_x, mouse_y):
                         #Starts there game if the user clicked "Start Game"
                         if option == "Start Game":
-                            from main import chess
+                            from Data.main import chess
                             chess()
                             pygame.display.set_caption("Main Menu")
                         #Quits the game if the user clicked "Quit"
