@@ -42,4 +42,3 @@ class Die:
                         dice_value = roll_dice()
 
         pygame.quit()
-    `

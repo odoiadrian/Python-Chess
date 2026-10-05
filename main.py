@@ -1,20 +1,20 @@
 # Importing the library and classes
 import pygame
-import sys
 from Data.Classes.board import Board
-from Data.Classes.timer import Timer
 
 def draw(display):
     display.fill('white')
     board.draw(display)
     pygame.display.update()
 
-board = Board(400, 400)
+board = None
 
 def chess():
+    global board
     # Initializing Pygame
     pygame.init()
-                            
+    board = Board(400, 400)
+
     # Creating the display
     display = pygame.display.set_mode((800, 600))
     pygame.display.set_caption('CHESS ULTIMA') 
@@ -32,8 +32,12 @@ def chess():
                 # If the left mouse button is clicked
                 if event.button == 1:
                     board.click_detection(mx, my)
+
+        if board.end:
+            running = False
         
         # Draw the board
         draw(display)
-        
-    pygame.quit()
+
+if __name__ == "__main__":
+    chess()

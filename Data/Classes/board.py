@@ -1,11 +1,11 @@
 import pygame
-from Data. Classes. square import Square
-from Data. Classes. pieces. bishop import Bishop
-from Data. Classes. pieces. king import King
-from Data. Classes. pieces. knight import Knight
-from Data. Classes. pieces. pawn import Pawn
-from Data. Classes. pieces. queen import Queen
-from Data. Classes. pieces. rook import Rook
+from Data.Classes.square import Square
+from Data.Classes.pieces.bishop import Bishop
+from Data.Classes.pieces.king import King
+from Data.Classes.pieces.knight import Knight
+from Data.Classes.pieces.pawn import Pawn
+from Data.Classes.pieces.queen import Queen
+from Data.Classes.pieces.rook import Rook
 from Data.Classes.timer import Timer
 import random
 import time
@@ -113,6 +113,7 @@ class Board:
             pair = []
             board_design = []
             self.timer.switch_turn()
+            self.end = False
         
             #THREEFOLD REPETITION
             #Creates a list of the pieces on every square
@@ -140,7 +141,6 @@ class Board:
             
             #INSUFFICIENT MATERIAL
             #Gets the material of the game after each move
-            self.end = True
             for square in self.squares:
                 if square.occupying_piece:
                     #Adds the piece colour and type to the material
@@ -152,19 +152,21 @@ class Board:
             #King vs King 
             if len(material) == 2:
                 print('Draw by insufficient material')
+                self.end = True
             elif len (material) == 3:
                 #King & Knight vs King
                 if 'whiteN' in material or 'blackN' in material:
                     print('Draw by insufficient material')
+                    self.end = True
                 #King & Bishop vs King
                 elif 'whiteB' in material or 'blackB' in material:
                     print('Draw by insufficient material')
-                else:
-                    self.end = False
+                    self.end = True
             elif len(material) == 4:
                 #King & Knight vs King & Knight
                 if 'whiteN' in material and 'blackN' in material:
                     print('Draw by insufficient material')
+                    self.end = True
                 #King & Bishop vs King & Bishop
                 elif 'whiteB' in material and 'blackB' in material:
                     #Makes sure they are ofm different colour squares
@@ -173,10 +175,7 @@ class Board:
                             pair.append(square.colour)
                     if pair[0] != pair[1]:
                         print('Draw by insufficient material')
-                else:
-                    self.end = False
-            else:
-                self.end = False
+                        self.end = True
                             
             #CHECKMATE / STALEMATE
             #Checks if the player has legal moves
@@ -240,34 +239,49 @@ class Board:
                 else:
                     self.opp_pieces.append(square.occupying_piece)
                 
-    def is_in_check(self): 
-        check = False   
-        opps = []
-        opp_direction = []
-        #Check if any opponent pieces are attacking the king
+    def is_in_check(self):
+        king = self.opp_king()
+        if king is None:
+            self.checking_pieces = []
+            self.checking_direction = []
+            return False
+
+        king_square = self.get_square_from_position(king.position)
+        checking_pieces = []
+        checking_directions = []
+
         for square in self.squares:
             piece = square.occupying_piece
-            if piece and piece.colour == self.turn:
-                if self.get_square_from_position(self.opp_king().position) in piece.get_moves(self):
-                    opps.append(piece)
-        self.checking_pieces = opps
+            if piece is None or piece.colour != self.turn:
+                continue
 
-        #Gets all the directions that any opponent pieces are attacking the king
-        for piece in opps:
-            for direction in piece.get_moves(self):
-                if type(direction) == list:
-                    for square in direction:
-                        if self.get_square_from_position(self.opp_king().position) in direction:
-                            opp_direction.append(direction)
+            # Pawns move forward but attack diagonally.
+            if piece.notation == ' ':
+                if king_square in piece.attacking_squares(self):
+                    checking_pieces.append(piece)
+                    checking_directions.append([square, king_square])
+                continue
 
-                elif type(direction) == object:
-                    if square and square.notation == self.get_square_from_position(self.opp_king().position).notation:
-                        opp_direction.append(direction)
-        self.checking_direction = opp_direction
-        
-        if opps == []:
-            return False
-        return True
+            if king_square not in piece.get_moves(self):
+                continue
+
+            checking_pieces.append(piece)
+            for direction in piece.get_possible_moves(self):
+                if isinstance(direction, list) and king_square in direction:
+                    # Keep the checker and the squares between it and the king
+                    # so a reply can capture the checker or block the attack.
+                    line = [square]
+                    for line_square in direction:
+                        line.append(line_square)
+                        if line_square == king_square:
+                            break
+                    checking_directions.append(line)
+                elif direction == king_square:
+                    checking_directions.append([square, king_square])
+
+        self.checking_pieces = checking_pieces
+        self.checking_direction = checking_directions
+        return bool(checking_pieces)
                     
     #Highlights squares.
     def draw(self, display):

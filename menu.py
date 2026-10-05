@@ -60,6 +60,7 @@ def main_menu():
                         if option == "Start Game":
                             from main import chess
                             chess()
+                            pygame.display.set_caption("Main Menu")
                         #Quits the game if the user clicked "Quit"
                         elif option == "Quit":
                             pygame.quit()

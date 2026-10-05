@@ -37,7 +37,7 @@ class Piece:
                                 moves.append(square)
                             
                 #Used purely for the knight and pawn: Moves in the form of a 1D array        
-                elif type(direction) == object:
+                elif direction is not None:
                     if direction.occupying_piece:
                         if direction.occupying_piece.colour != self.colour:
                             moves.append(direction)
@@ -73,15 +73,14 @@ class Piece:
             moves.append(move)
         
         #Checks to see if any king is in check
-        if board.bcheck or board.wcheck:
-            #Prevents pieces from moving in a way that would leave the king in check
-            if self.notation != 'K':
-                for direction in board.checking_direction:
-                    #Only applies to Queens, Bishops and Rooks
-                    if type(direction) == list:
-                        for move in moves:
-                            if move not in direction:
-                                moves.remove(move)
+        if (board.bcheck or board.wcheck) and self.notation != 'K':
+            # A single check can be answered by capturing the checker or blocking
+            # its line. With multiple checks, only the king can move.
+            if len(board.checking_pieces) > 1:
+                moves = []
+            elif board.checking_direction:
+                allowed_squares = board.checking_direction[0]
+                moves = [move for move in moves if move in allowed_squares]
 
         #Prevent king from moving into check
         if self.notation == 'K':
