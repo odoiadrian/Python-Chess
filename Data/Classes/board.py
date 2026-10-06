@@ -45,7 +45,7 @@ class Board:
                 self.initial_position.append(square.occupying_piece.colour+square.occupying_piece.notation)
             else:
                 self.initial_position.append(None)
-        self.timer = Timer(600)
+        self.timer = Timer(20)
         self.timer.start()
         self.prev_positions = [self.initial_position]
         self.position_counter = [1]
