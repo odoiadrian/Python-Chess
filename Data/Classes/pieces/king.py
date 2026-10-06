@@ -52,10 +52,14 @@ class King(Piece):
              blocking_piecesK.append(board.get_piece_from_position((i, self.y)))
              
         #Sets castling squares provided that nothing's in the way and neither the king and respective rook have moved
-        if blocking_piecesQ == [None, None, None] and self.has_moved == False and board.get_piece_from_position((0, self.y)) and board.get_piece_from_position((0, self.y)).has_moved == False:
-            castles.append(board.get_square_from_position((2, self.y)))
-        if blocking_piecesK == [None, None]and self.has_moved == False and board.get_piece_from_position((7, self.y)) and board.get_piece_from_position((7, self.y)).has_moved == False:
-            castles.append(board.get_square_from_position((6, self.y)))
+        if blocking_piecesQ == [None, None, None]:
+            if self.has_moved == False:
+                if board.get_piece_from_position((0, self.y)) and board.get_piece_from_position((0, self.y)).notation == 'R' and board.get_piece_from_position((0, self.y)).colour == self.colour and board.get_piece_from_position((0, self.y)).has_moved == False:
+                    castles.append(board.get_square_from_position((2, self.y)))
+        if blocking_piecesK == [None, None]:
+            if self.has_moved == False:
+                if board.get_piece_from_position((7, self.y)) and board.get_piece_from_position((7, self.y)).notation == 'R' and board.get_piece_from_position((7, self.y)).colour == self.colour and board.get_piece_from_position((7, self.y)).has_moved == False:
+                    castles.append(board.get_square_from_position((6, self.y)))
             
         for move in castles:
             if move in self.cant_go(board):
